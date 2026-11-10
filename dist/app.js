@@ -8,11 +8,29 @@ const main = $('#main');
 const dialog = $('#dialog');
 const storageKey = 'aspprin-marketplace-v1';
 const emptyState = () => ({ orders: [], listings: [] });
+const listingImages = new Set(houses.map(home => home.photo));
+
+function validOrder(order) {
+  return order && view.orderKinds.includes(order.kind)
+    && ['id', 'title', 'detail', 'status'].every(key => typeof order[key] === 'string')
+    && Number.isFinite(order.created)
+    && (order.kind !== 'Group Buy' || (Number.isSafeInteger(order.quantity) && order.quantity > 0));
+}
+
+function validListing(home) {
+  return home && listingImages.has(home.photo)
+    && ['id', 'name', 'city', 'province', 'label', 'description'].every(key => typeof home[key] === 'string')
+    && ['price', 'building', 'land'].every(key => Number.isSafeInteger(home[key]) && home[key] > 0)
+    && ['rooms', 'bath'].every(key => Number.isSafeInteger(home[key]) && home[key] >= 0);
+}
 
 function readState() {
   try {
     const saved = JSON.parse(localStorage.getItem(storageKey));
-    return Array.isArray(saved?.orders) && Array.isArray(saved?.listings) ? saved : emptyState();
+    return {
+      orders: Array.isArray(saved?.orders) ? saved.orders.filter(validOrder) : [],
+      listings: Array.isArray(saved?.listings) ? saved.listings.filter(validListing) : [],
+    };
   } catch {
     return emptyState();
   }
@@ -27,8 +45,10 @@ const listings = () => [...houses, ...state.listings];
 
 function updateBadge() {
   const badge = $('.order-count');
-  badge.hidden = state.orders.length === 0;
-  badge.textContent = state.orders.length;
+  const count = state.orders.length;
+  badge.hidden = count === 0;
+  badge.textContent = count > 99 ? '99+' : count;
+  $('.orders-link').setAttribute('aria-label', count ? `Pesanan (${count} aktivitas)` : 'Pesanan');
 }
 
 function toast(message) {
@@ -67,18 +87,20 @@ function setMenu(open) {
 }
 
 function render(resetScroll = false) {
-  const [name, search] = (location.hash.slice(1) || 'beranda').split('?');
-  if (name === 'main') return;
+  const [name, search] = (location.hash.slice(1) || 'beranda').split(/\?(.*)/s);
   const params = new URLSearchParams(search);
+  const city = view.cities.includes(params.get('city')) ? params.get('city') : '';
+  const sort = ['asc', 'desc'].includes(params.get('sort')) ? params.get('sort') : '';
+  const kind = view.orderKinds.includes(params.get('jenis')) ? params.get('jenis') : '';
   const all = listings();
   const pages = {
     beranda: () => view.homePage(all),
-    rumah: () => view.houseCatalog(all, params),
+    rumah: () => view.houseCatalog(all, params.get('q') ?? '', city, sort),
     material: () => view.materialPage(params.get('mode'), state.orders),
     anggota: view.memberPage,
     daftar: view.signupPage,
     kpr: () => view.kprPage(all, all.find(home => home.id === params.get('rumah'))),
-    pesanan: () => view.ordersPage(state.orders, params.get('jenis') || ''),
+    pesanan: () => view.ordersPage(state.orders, kind),
     asisten: view.assistantPage,
     'visi-misi': view.visionPage,
     organisasi: view.orgPage,
@@ -94,10 +116,10 @@ function render(resetScroll = false) {
     else link.removeAttribute('aria-current');
   });
   if (page === 'rumah') {
-    $('#house-filter').elements.city.value = params.get('city') || '';
-    $('#house-filter').elements.sort.value = params.get('sort') || '';
+    $('#house-filter').elements.city.value = city;
+    $('#house-filter').elements.sort.value = sort;
   }
-  if (page === 'pesanan') $('#order-filter').value = params.get('jenis') || '';
+  if (page === 'pesanan') $('#order-filter').value = kind;
   if (page === 'kpr') updateMortgage();
   if (resetScroll) {
     setMenu(false);
@@ -221,7 +243,7 @@ function gallery(id) {
 function showChat(open) {
   $('#chat').hidden = !open;
   $('#chat-launch').setAttribute('aria-expanded', String(open));
-  if (open) $('#chat-form input').focus();
+  if (open) $('#chat [data-action="close-chat"]').focus();
   else $('#chat-launch').focus();
 }
 
@@ -295,6 +317,12 @@ const actions = {
 };
 
 document.addEventListener('click', event => {
+  if (event.target.closest('.skip')) {
+    event.preventDefault();
+    main.focus({ preventScroll: true });
+    main.scrollIntoView();
+    return;
+  }
   const action = event.target.closest('[data-action]');
   if (action) actions[action.dataset.action]?.(action.dataset.id);
   const prompt = event.target.closest('[data-prompt]');
@@ -357,14 +385,17 @@ document.addEventListener('change', event => {
   }
 });
 
-window.addEventListener('hashchange', () => render(true));
+window.addEventListener('hashchange', () => {
+  if (dialog.open) dialog.close();
+  render(true);
+});
 window.addEventListener('storage', event => {
   if (event.key !== storageKey && event.key !== null) return;
   state = readState();
   updateBadge();
   if (!dialog.open && ['pesanan', 'material'].includes(activeRoute)) render();
 });
-dialog.addEventListener('close', () => { dialogSubmit = undefined; });
+dialog.addEventListener('close', () => { if (!dialog.open) dialogSubmit = undefined; });
 document.querySelectorAll('[data-icon]').forEach(element => { element.innerHTML = icon(element.dataset.icon); });
 $('#year').textContent = new Date().getFullYear();
 updateBadge();

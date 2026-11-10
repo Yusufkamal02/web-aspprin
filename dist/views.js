@@ -4,6 +4,7 @@ import { escape as e, money, number } from './domain.js';
 
 export const asset = name => './assets/' + name;
 export const cities = ['Bogor', 'Bekasi', 'Tangerang'];
+export const orderKinds = ['Material', 'Group Buy', 'Minat Rumah', 'Iklan Rumah', 'KPR', 'Keanggotaan'];
 const link = (to, label, style = 'primary', graphic = 'arrow-right') =>
   `<a class="button ${style}" href="#${to}">${label} ${icon(graphic, 18)}</a>`;
 const button = (action, label, id = '', style = 'primary', graphic = 'arrow-right') =>
@@ -55,10 +56,7 @@ export function homePage(listings) {
   ${section(`<div class="feature assistant-feature"><div class="feature-copy">${eyebrow('ASISTEN AI')}<h2>Butuh bantuan memilih rumah?</h2><p>Bandingkan pilihan berdasarkan kota, anggaran, atau luas bangunan.</p>${link('asisten', 'Coba Asisten AI', 'primary', 'sparkles')}</div><div class="assistant-art" aria-hidden="true">${icon('sparkles', 76)}</div></div>`)}`;
 }
 
-export function houseCatalog(listings, params) {
-  const query = params.get('q') ?? '';
-  const city = params.get('city') ?? '';
-  const sort = params.get('sort') ?? '';
+export function houseCatalog(listings, query, city, sort) {
   return hero('MARKETPLACE', 'Rumah Subsidi', 'Cari rumah berdasarkan lokasi dan harga atau tambahkan iklan rumah contoh.', button('sell', 'Pasang Iklan Rumah', '', 'primary', 'plus')) + section(`
     <form class="filters" id="house-filter">
       <label>Cari rumah<input name="q" placeholder="Nama perumahan atau kota" value="${e(query)}"></label>
@@ -96,13 +94,14 @@ function materialCard(item, group, orders) {
 }
 
 export function kprPage(listings, selected) {
+  const price = selected?.price ?? 166000000;
   return hero('PEMBIAYAAN', 'Simulasi KPR', 'Perkirakan cicilan bulanan dari harga rumah, uang muka, tenor, dan asumsi bunga.') + section(`
     <div class="two-col">
       <form id="mortgage" class="panel form-grid">
         <h2 class="full">Rincian pembiayaan</h2>
         <label class="full">Pilih rumah (opsional)<select name="listing"><option value="">Masukkan harga sendiri</option>${listings.map(home => `<option value="${e(home.id)}" ${home.id === selected?.id ? 'selected' : ''}>${e(home.name)}</option>`).join('')}</select></label>
-        <label>Harga rumah (Rp)<input name="price" type="number" min="1" max="1000000000000" step="1" value="${selected?.price ?? 166000000}" required></label>
-        <label>Uang muka (Rp)<input name="down" type="number" min="0" max="1000000000000" step="1" value="10000000" required></label>
+        <label>Harga rumah (Rp)<input name="price" type="number" min="1" max="1000000000000" step="1" value="${price}" required></label>
+        <label>Uang muka (Rp)<input name="down" type="number" min="0" max="1000000000000" step="1" value="${Math.min(10000000, Math.floor(price * .1))}" required></label>
         <label>Tenor (tahun)<input name="years" type="number" min="1" max="40" step="1" value="20" required></label>
         <label>Asumsi bunga (% per tahun)<input name="rate" type="number" min="0" max="40" step="0.01" value="5" required></label>
         <p id="mortgage-error" class="form-error full" role="status" hidden></p>
@@ -142,10 +141,9 @@ export function signupPage() {
 }
 
 export function ordersPage(orders, filter) {
-  const groups = ['', 'Material', 'Group Buy', 'Minat Rumah', 'Iklan Rumah', 'KPR', 'Keanggotaan'];
   const matching = filter ? orders.filter(order => order.kind === filter) : orders;
   return hero('AKTIVITAS SAYA', 'Pesanan & Pengajuan', 'Pantau pesanan material, minat rumah, dan pengajuan contoh di browser ini.') + section(`
-    <label class="order-filter">Jenis aktivitas<select id="order-filter">${options(groups.slice(1), 'Semua aktivitas')}</select></label>
+    <label class="order-filter">Jenis aktivitas<select id="order-filter">${options(orderKinds, 'Semua aktivitas')}</select></label>
     ${matching.length ? `<div class="order-list">${matching.map(order => `<article class="panel order"><span class="tile-icon">${icon(order.kind.includes('Rumah') ? 'home' : 'bag')}</span>
     <div><small>${e(order.kind)} · ${e(order.id)}</small><h3>${e(order.title)}</h3><p>${e(order.detail)}</p></div>
     <div class="order-meta"><span class="pill status"><i></i>${e(order.status)}</span><small>${new Date(order.created).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</small></div></article>`).join('')}</div>` : empty('Belum ada aktivitas', 'Pesanan dan pengajuan yang Anda simpan akan muncul di sini.')}`);
