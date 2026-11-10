@@ -1,5 +1,5 @@
 import { icon } from './icons.js';
-import { materials, articles } from './data.js';
+import { materials, articles, academy } from './data.js';
 import { escape as e, money, number } from './domain.js';
 
 export const asset = name => './assets/' + name;
@@ -40,16 +40,51 @@ const services = [
   ['anggota', 'users', 'Keanggotaan', 'Bergabung dengan ASPPRIN'],
 ];
 
+const banners = [
+  {
+    name: 'Rumah subsidi', photo: 'hero.jpg', tag: 'BERSAMA MEMBANGUN RUMAH UNTUK MASA DEPAN',
+    title: 'Rumah terjangkau,<br><em>masa depan lebih dekat.</em>',
+    description: 'Temukan rumah subsidi, belanja material bangunan, dan rencanakan KPR Anda dalam satu marketplace dari ASPPRIN.',
+    actions: link('rumah', 'Jelajahi Rumah Subsidi') + link('kpr', 'Simulasi KPR', 'glass', 'calculator'),
+    caption: ['home', 'Perumahan rakyat', 'Ilustrasi hunian'],
+  },
+  {
+    name: 'Group Buy', photo: 'material.jpg', tag: 'MATERIAL BANGUNAN',
+    title: 'Belanja bersama,<br><em>bangun lebih efisien.</em>',
+    description: 'Temukan material untuk proyek Anda dan ikut pembelian kolektif untuk mencapai target bersama.',
+    actions: link('material?mode=group', 'Lihat Group Buy') + link('material', 'Jelajahi Material', 'glass', 'bricks'),
+    caption: ['bricks', 'Material bangunan', 'Ilustrasi katalog'],
+  },
+  {
+    name: 'Akademi ASPPRIN', photo: 'savana.jpg', tag: 'SOSIALISASI & AKADEMI',
+    title: 'Belajar bersama<br><em>Akademi ASPPRIN.</em>',
+    description: 'Lihat topik sosialisasi dan pelajari cara menggunakan marketplace melalui modul singkat.',
+    actions: link('sosialisasi', 'Buka Akademi') + link('sosialisasi?tab=belajar', 'Mulai Belajar', 'glass', 'check'),
+    caption: ['users', 'Akademi ASPPRIN', 'Ilustrasi hunian'],
+  },
+];
+
+function homeBanner() {
+  return `<section class="hero" aria-roledescription="karusel" aria-label="Sorotan beranda">
+    <div class="hero-controls" role="group" aria-label="Kontrol banner">
+      <button class="icon-button" type="button" data-rotation aria-label="Jeda rotasi banner">${icon('pause', 16)}</button>
+      <button class="icon-button" type="button" data-step="-1" aria-label="Banner sebelumnya">${icon('arrow-left', 17)}</button>
+      ${banners.map((banner, index) => `<button class="hero-dot" type="button" data-slide="${index}" aria-label="Banner ${banner.name}"${index === 0 ? ' aria-current="true"' : ''}></button>`).join('')}
+      <button class="icon-button" type="button" data-step="1" aria-label="Banner berikutnya">${icon('arrow-right', 17)}</button>
+    </div>
+    <div class="hero-slides" aria-live="off">
+      ${banners.map(({ name, photo, tag, title, description, actions, caption }, index) => `<div class="hero-slide" role="group" aria-roledescription="slide" aria-label="${name}" aria-hidden="${index !== 0}"${index ? ' inert' : ''}>
+        <img class="hero-image" src="${asset(photo)}" alt="" ${index === 0 ? 'fetchpriority="high"' : 'fetchpriority="low"'}>
+        <div class="wrap hero-content"><div class="hero-copy">
+          ${eyebrow(tag)}<h1>${title}</h1><p>${description}</p><div class="action-row">${actions}</div>
+        </div><div class="hero-caption"><span class="caption-icon">${icon(caption[0], 19)}</span><div><strong>${caption[1]}</strong><small>${caption[2]}</small></div></div></div>
+      </div>`).join('')}
+    </div>
+  </section>`;
+}
+
 export function homePage(listings) {
-  return `<section class="hero">
-    <img class="hero-image" src="${asset('hero.jpg')}" alt="" fetchpriority="high">
-    <div class="wrap hero-content"><div class="hero-copy">
-      ${eyebrow('BERSAMA MEMBANGUN RUMAH UNTUK MASA DEPAN')}
-      <h1>Rumah terjangkau,<br><em>masa depan lebih dekat.</em></h1>
-      <p>Temukan rumah subsidi, belanja material bangunan, dan rencanakan KPR Anda dalam satu marketplace dari ASPPRIN.</p>
-      <div class="action-row">${link('rumah', 'Jelajahi Rumah Subsidi')}${link('kpr', 'Simulasi KPR', 'glass', 'calculator')}</div>
-    </div><div class="hero-caption"><span class="caption-icon">${icon('home', 19)}</span><div><strong>Perumahan rakyat</strong><small>Ilustrasi hunian</small></div></div></div>
-  </section>
+  return `${homeBanner()}
   <div class="wrap quick-wrap"><nav class="quick-nav" aria-label="Layanan marketplace">${services.map(([route, glyph, title, sub]) => `<a href="#${route}"><span class="tile-icon">${icon(glyph, 23)}</span><span><strong>${title}</strong><small>${sub}</small></span>${icon('chevron', 16)}</a>`).join('')}</nav></div>
   ${section(`${heading('KATALOG CONTOH', 'Temukan rumah pertama Anda', 'Jelajahi contoh hunian subsidi berdasarkan lokasi, luas dan anggaran.', link('rumah', 'Lihat Semua Rumah', 'outline'))}<div class="cards">${listings.slice(0, 3).map(houseCard).join('')}</div>`)}
   ${section(`<div class="feature"><div class="feature-copy">${eyebrow('MATERIAL BANGUNAN') }<h2>Belanja bersama dengan Group Buy</h2><p>Pilih material dan gabungkan pesanan untuk mengejar target pembelian kelompok.</p>${link('material?mode=group', 'Lihat Group Buy')}</div><img src="${asset('material.jpg')}" alt="Ilustrasi material bangunan" loading="lazy"></div>`)}
@@ -60,8 +95,8 @@ export function houseCatalog(listings, query, city, sort) {
   return hero('MARKETPLACE', 'Rumah Subsidi', 'Cari rumah berdasarkan lokasi dan harga atau tambahkan iklan rumah contoh.', button('sell', 'Pasang Iklan Rumah', '', 'primary', 'plus')) + section(`
     <form class="filters" id="house-filter">
       <label>Cari rumah<input name="q" placeholder="Nama perumahan atau kota" value="${e(query)}"></label>
-      <label>Lokasi<select name="city">${options(cities, 'Semua kota')}</select></label>
-      <label>Urutkan<select name="sort"><option value="">Rekomendasi</option><option value="asc">Harga terendah</option><option value="desc">Harga tertinggi</option></select></label>
+      <label>Lokasi<span class="filter-select"><select name="city">${options(cities, 'Semua kota')}</select>${icon('chevron-down', 16)}</span></label>
+      <label>Urutkan<span class="filter-select"><select name="sort"><option value="">Rekomendasi</option><option value="asc">Harga terendah</option><option value="desc">Harga tertinggi</option></select>${icon('chevron-down', 16)}</span></label>
       <button class="button primary">${icon('search', 17)} Cari Rumah</button>
     </form>
     <div id="house-results" aria-live="polite">${houseResults(listings, query, city, sort)}</div>`);
@@ -114,7 +149,7 @@ export function kprPage(listings, selected) {
 }
 
 export function memberPage() {
-  return hero('JARINGAN PENGEMBANG', 'Anggota ASPPRIN', 'Ruang kolaborasi bagi pengembang perumahan rakyat di Indonesia.', link('daftar', 'Daftar Menjadi Anggota')) + section(`
+  return hero('JARINGAN PENGEMBANG', 'Anggota ASPPRIN', 'Ruang kolaborasi bagi pengembang perumahan rakyat di Indonesia.', link('daftar', 'Daftar Menjadi Anggota') + link('sosialisasi', 'Sosialisasi & Akademi', 'glass')) + section(`
     ${heading('KEANGGOTAAN', 'Bergabung dan berkolaborasi', 'Kenali kegiatan organisasi dan cara memulai pendaftaran.')}
     <div class="cards">
       ${infoCard('users', 'Jaringan pengembang', 'Bangun kerja sama dan berbagi pengalaman dengan pengembang di berbagai daerah.')}
@@ -126,6 +161,25 @@ export function memberPage() {
 }
 
 const infoCard = (glyph, title, content, action = '') => `<article class="card info-card"><span class="tile-icon">${icon(glyph, 24)}</span><h3>${title}</h3><p>${content}</p>${action}</article>`;
+
+export function academyPage(tab, { interested, completed }) {
+  const learning = tab === 'belajar';
+  return hero('KEANGGOTAAN', 'Sosialisasi & Akademi', 'Jelajahi topik sosialisasi dan pelajari cara menggunakan layanan marketplace.') + section(`
+    <nav class="tabs academy-tabs" aria-label="Bagian akademi">
+      <a href="#sosialisasi" aria-current="${learning ? 'false' : 'page'}">Agenda Sosialisasi</a>
+      <a href="#sosialisasi?tab=belajar" aria-current="${learning ? 'page' : 'false'}">Modul Belajar</a>
+    </nav>
+    ${learning ? `<div class="panel academy-progress"><label>${completed.length} dari ${academy.length} modul selesai<progress max="${academy.length}" value="${completed.length}"></progress></label></div>` : note('Topik agenda contoh. Minat disimpan di browser ini. Untuk jadwal resmi, lihat <a class="text-link" href="#kontak">kontak ASPPRIN</a>.')}
+    <div class="cards">${academy.map(item => learning
+      ? infoCard(item.icon, item.title, item.summary, button('learn', completed.includes(item.id) ? 'Ulangi Modul' : 'Mulai Belajar', item.id, 'outline small', completed.includes(item.id) ? 'check' : 'arrow-right'))
+      : infoCard(item.icon, item.agenda, item.summary, button('academy-interest', interested.includes(item.id) ? 'Batalkan Minat' : 'Simpan Minat', item.id, 'outline small', interested.includes(item.id) ? 'check' : 'plus'))).join('')}</div>`);
+}
+
+export function lessonContent(item, done) {
+  return item.steps.map(step => `<p>${e(step)}</p>`).join('') + (done
+    ? note('Modul ini sudah selesai.')
+    : button('complete-lesson', 'Tandai Selesai', item.id, 'primary', 'check'));
+}
 export const demoNote = note('Formulir pratinjau. Gunakan data contoh. Catatan tersimpan di browser ini.');
 export const personFields = `<label>Nama lengkap<input name="name" autocomplete="off" maxlength="80" placeholder="Nama contoh" required></label><label>Email<input name="email" type="email" autocomplete="off" maxlength="120" placeholder="nama@example.com" required></label>`;
 

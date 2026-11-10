@@ -1,12 +1,14 @@
 import { icon } from './icons.js';
-import { houses, materials, articles } from './data.js';
+import { houses, materials, articles, academy } from './data.js';
 import { escape as e, money, mortgage, recommendations, onDevicePick } from './domain.js';
 import * as view from './views.js';
+import { startCarousel } from './carousel.js';
 
 const $ = selector => document.querySelector(selector);
 const main = $('#main');
 const dialog = $('#dialog');
 const storageKey = 'aspprin-marketplace-v1';
+const academyKey = 'aspprin-academy-v1';
 const emptyState = () => ({ orders: [], listings: [] });
 const listingImages = new Set(houses.map(home => home.photo));
 
@@ -41,6 +43,7 @@ let activeRoute;
 let toastTimer;
 let dialogSubmit;
 let searchRun = 0;
+let stopCarousel;
 const listings = () => [...houses, ...state.listings];
 
 function updateBadge() {
@@ -98,6 +101,7 @@ function render(resetScroll = false) {
     rumah: () => view.houseCatalog(all, params.get('q') ?? '', city, sort),
     material: () => view.materialPage(params.get('mode'), state.orders),
     anggota: view.memberPage,
+    sosialisasi: () => view.academyPage(params.get('tab'), readAcademy()),
     daftar: view.signupPage,
     kpr: () => view.kprPage(all, all.find(home => home.id === params.get('rumah'))),
     pesanan: () => view.ordersPage(state.orders, kind),
@@ -109,7 +113,9 @@ function render(resetScroll = false) {
   };
   const page = Object.hasOwn(pages, name) ? name : 'beranda';
   activeRoute = page;
+  stopCarousel?.();
   main.innerHTML = pages[page]();
+  stopCarousel = page === 'beranda' ? startCarousel($('.hero')) : undefined;
   document.title = page === 'beranda' ? 'ASPPRIN Marketplace — Ekosistem Perumahan Rakyat' : main.querySelector('h1').textContent + ' | ASPPRIN Marketplace';
   document.querySelectorAll('.main-nav a, .utility nav a, .orders-link').forEach(link => {
     if (link.hash === '#' + page) link.setAttribute('aria-current', 'page');
@@ -235,6 +241,43 @@ function article(id) {
   if (item) modal(item.title, `<img class="dialog-picture" src="${view.asset(item.photo)}" alt=""><p><strong>${item.lead}</strong></p>${item.body.map(paragraph => `<p>${paragraph}</p>`).join('')}`);
 }
 
+function readAcademy() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(academyKey));
+    return {
+      interested: academy.filter(item => Array.isArray(saved?.interested) && saved.interested.includes(item.id)).map(item => item.id),
+      completed: academy.filter(item => Array.isArray(saved?.completed) && saved.completed.includes(item.id)).map(item => item.id),
+    };
+  } catch {
+    return { interested: [], completed: [] };
+  }
+}
+
+function saveAcademy(activity, id) {
+  if (!academy.some(item => item.id === id)) return;
+  const current = readAcademy();
+  const alreadySaved = current[activity].includes(id);
+  const learning = activity === 'completed';
+  if (learning && alreadySaved) return;
+  current[activity] = alreadySaved ? current[activity].filter(entry => entry !== id) : [...current[activity], id];
+  try {
+    localStorage.setItem(academyKey, JSON.stringify(current));
+  } catch {
+    toast('Browser tidak dapat menyimpan progres akademi.');
+    return;
+  }
+  if (dialog.open) dialog.close();
+  render();
+  const trigger = learning ? 'learn' : 'academy-interest';
+  main.querySelector(`[data-action="${trigger}"][data-id="${id}"]`)?.focus({ preventScroll: true });
+  toast(learning ? 'Modul ditandai selesai.' : alreadySaved ? 'Minat agenda dibatalkan.' : 'Minat agenda tersimpan.');
+}
+
+function learn(id) {
+  const item = academy.find(module => module.id === id);
+  if (item) modal(item.title, view.lessonContent(item, readAcademy().completed.includes(id)));
+}
+
 function gallery(id) {
   const photo = ['cendana.jpg', 'mentari.jpg', 'material.jpg'][id];
   if (photo) modal(id === '2' ? 'Ilustrasi material bangunan' : 'Ilustrasi hunian rakyat', `<img class="dialog-gallery" src="${view.asset(photo)}" alt="Foto ilustrasi katalog ASPPRIN">`);
@@ -311,6 +354,9 @@ const actions = {
   apply,
   article,
   gallery,
+  learn,
+  'academy-interest': id => saveAcademy('interested', id),
+  'complete-lesson': id => saveAcademy('completed', id),
   'close-dialog': () => dialog.close(),
   'toggle-chat': () => showChat($('#chat').hidden),
   'close-chat': () => showChat(false),

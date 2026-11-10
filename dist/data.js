@@ -15,3 +15,33 @@ export const articles = [
   { id: 'group-buy', category: 'Material', title: 'Bagaimana cara kerja Group Buy?', photo: 'material.jpg', lead: 'Kenali pembelian kolektif dan cara mengikuti target pesanan.', body: ['Pilih produk yang memiliki penawaran Group Buy, masukkan jumlah yang Anda butuhkan, lalu periksa harga kelompok dan target pembelian.', 'Pantau jumlah unit yang terkumpul. Di versi pratinjau, jumlah kontribusi dan riwayat pesanan tersimpan di perangkat Anda.'] },
   { id: 'simulasi-kpr', category: 'Pembiayaan', title: 'Memahami hasil simulasi KPR', photo: 'savana.jpg', lead: 'Lihat bagaimana harga, uang muka, dan tenor memengaruhi cicilan.', body: ['Masukkan harga rumah dan uang muka untuk mendapatkan perkiraan pokok pinjaman. Gunakan tenor dan bunga asumsi untuk membandingkan cicilan bulanan.', 'Simulasi memakai rumus anuitas. Hasilnya belum mencakup biaya bank, pajak, maupun asuransi. Konfirmasi biaya dan ketentuan aktual kepada bank.'] },
 ];
+
+export const academy = [
+  {
+    id: 'keanggotaan', icon: 'users', agenda: 'Pengenalan keanggotaan', title: 'Memulai pendaftaran anggota',
+    summary: 'Kenali layanan keanggotaan dan cara mencoba formulir untuk pengembang.',
+    steps: [
+      'Buka halaman Keanggotaan untuk melihat layanan ASPPRIN dan tautan ke kontak resmi.',
+      'Pada formulir contoh, coba masukkan nama, email, perusahaan, dan kota fiktif. Setelah disimpan, catatan pendaftaran muncul di Pesanan & Pengajuan.',
+      'Untuk mendaftar secara resmi, hubungi layanan keanggotaan dan konfirmasi persyaratan serta cara penyerahan dokumen.',
+    ],
+  },
+  {
+    id: 'group-buy', icon: 'bricks', agenda: 'Pengenalan pembelian kolektif', title: 'Mengikuti Group Buy',
+    summary: 'Pelajari harga kelompok, satuan produk, dan cara membaca progres target.',
+    steps: [
+      'Buka Material Bangunan dan pilih tab Group Buy. Periksa satuan produk, harga kelompok, dan jumlah yang masih dibutuhkan untuk mencapai target.',
+      'Masukkan jumlah yang Anda perlukan dan cek estimasi total. Setelah disimpan, kontribusi contoh muncul di riwayat pesanan dan menambah progres pada browser ini.',
+      'Saat merencanakan pembelian sungguhan, sepakati spesifikasi, ongkos kirim, dan jadwal pengiriman dengan pemasok.',
+    ],
+  },
+  {
+    id: 'simulasi-kpr', icon: 'calculator', agenda: 'Klinik simulasi pembiayaan', title: 'Membaca hasil simulasi KPR',
+    summary: 'Bandingkan skenario harga, uang muka, dan tenor sebelum berbicara dengan bank.',
+    steps: [
+      'Pilih rumah di simulator atau masukkan harga sendiri. Isi uang muka, tenor, dan asumsi bunga untuk melihat perkiraan cicilan bulanan.',
+      'Ubah satu angka pada satu waktu agar Anda bisa melihat dampaknya terhadap cicilan dan total bunga.',
+      'Tanyakan suku bunga, biaya tambahan, serta ketentuan terbaru kepada bank sebelum mengambil keputusan pembiayaan.',
+    ],
+  },
+];
