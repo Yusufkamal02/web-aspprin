@@ -40,26 +40,36 @@ const services = [
   ['anggota', 'users', 'Keanggotaan', 'Bergabung dengan ASPPRIN'],
 ];
 
+function houseFinder() {
+  return `<form class="hero-finder" id="hero-finder" aria-label="Pencarian rumah subsidi">
+    <label>Lokasi<span class="filter-select"><select name="city">${options(cities, 'Semua kota')}</select>${icon('chevron-down', 15)}</span></label>
+    <label>Anggaran<span class="filter-select"><select name="max">
+      <option value="">Semua harga</option><option value="160000000">Maks. Rp160 jt</option><option value="170000000">Maks. Rp170 jt</option><option value="180000000">Maks. Rp180 jt</option><option value="200000000">Maks. Rp200 jt</option>
+    </select>${icon('chevron-down', 15)}</span></label>
+    <button class="button primary" type="submit">${icon('search', 18)} Cari Rumah</button>
+  </form>`;
+}
+
 const banners = [
   {
     name: 'Rumah subsidi', photo: 'hero.jpg', tag: 'BERSAMA MEMBANGUN RUMAH UNTUK MASA DEPAN',
-    title: 'Rumah terjangkau,<br><em>masa depan lebih dekat.</em>',
-    description: 'Temukan rumah subsidi, belanja material bangunan, dan rencanakan KPR Anda dalam satu marketplace dari ASPPRIN.',
-    actions: link('rumah', 'Jelajahi Rumah Subsidi') + link('kpr', 'Simulasi KPR', 'glass', 'calculator'),
+    title: 'Temukan rumah subsidi<br><em>di kota Anda.</em>',
+    description: 'Pilih lokasi dan anggaran untuk menemukan hunian yang sesuai.',
+    actions: houseFinder(),
     caption: ['home', 'Perumahan rakyat', 'Ilustrasi hunian'],
   },
   {
     name: 'Group Buy', photo: 'material.jpg', tag: 'MATERIAL BANGUNAN',
     title: 'Belanja bersama,<br><em>bangun lebih efisien.</em>',
     description: 'Temukan material untuk proyek Anda dan ikut pembelian kolektif untuk mencapai target bersama.',
-    actions: link('material?mode=group', 'Lihat Group Buy') + link('material', 'Jelajahi Material', 'glass', 'bricks'),
+    actions: `<div class="action-row">${link('material?mode=group', 'Lihat Group Buy')}${link('material', 'Jelajahi Material', 'glass', 'bricks')}</div>`,
     caption: ['bricks', 'Material bangunan', 'Ilustrasi katalog'],
   },
   {
     name: 'Akademi ASPPRIN', photo: 'savana.jpg', tag: 'SOSIALISASI & AKADEMI',
     title: 'Belajar bersama<br><em>Akademi ASPPRIN.</em>',
     description: 'Lihat topik sosialisasi dan pelajari cara menggunakan marketplace melalui modul singkat.',
-    actions: link('sosialisasi', 'Buka Akademi') + link('sosialisasi?tab=belajar', 'Mulai Belajar', 'glass', 'check'),
+    actions: `<div class="action-row">${link('sosialisasi', 'Buka Akademi')}${link('sosialisasi?tab=belajar', 'Mulai Belajar', 'glass', 'check')}</div>`,
     caption: ['users', 'Akademi ASPPRIN', 'Ilustrasi hunian'],
   },
 ];
@@ -76,7 +86,7 @@ function homeBanner() {
       ${banners.map(({ name, photo, tag, title, description, actions, caption }, index) => `<div class="hero-slide" role="group" aria-roledescription="slide" aria-label="${name}" aria-hidden="${index !== 0}"${index ? ' inert' : ''}>
         <img class="hero-image" src="${asset(photo)}" alt="" ${index === 0 ? 'fetchpriority="high"' : 'fetchpriority="low"'}>
         <div class="wrap hero-content"><div class="hero-copy">
-          ${eyebrow(tag)}<h1>${title}</h1><p>${description}</p><div class="action-row">${actions}</div>
+          ${eyebrow(tag)}<h1>${title}</h1><p>${description}</p>${actions}
         </div><div class="hero-caption"><span class="caption-icon">${icon(caption[0], 19)}</span><div><strong>${caption[1]}</strong><small>${caption[2]}</small></div></div></div>
       </div>`).join('')}
     </div>
@@ -86,29 +96,33 @@ function homeBanner() {
 export function homePage(listings) {
   return `${homeBanner()}
   <div class="wrap quick-wrap"><nav class="quick-nav" aria-label="Layanan marketplace">${services.map(([route, glyph, title, sub]) => `<a href="#${route}"><span class="tile-icon">${icon(glyph, 23)}</span><span><strong>${title}</strong><small>${sub}</small></span>${icon('chevron', 16)}</a>`).join('')}</nav></div>
-  ${section(`${heading('KATALOG CONTOH', 'Temukan rumah pertama Anda', 'Jelajahi contoh hunian subsidi berdasarkan lokasi, luas dan anggaran.', link('rumah', 'Lihat Semua Rumah', 'outline'))}<div class="cards">${listings.slice(0, 3).map(houseCard).join('')}</div>`)}
+  ${section(`${heading('KATALOG CONTOH', 'Temukan rumah pertama Anda', 'Jelajahi contoh hunian subsidi berdasarkan lokasi, luas dan anggaran.', link('rumah', 'Lihat Semua Rumah', 'outline'))}<div class="cards">${listings.slice(0, 6).map(houseCard).join('')}</div>`)}
   ${section(`<div class="feature"><div class="feature-copy">${eyebrow('MATERIAL BANGUNAN') }<h2>Belanja bersama dengan Group Buy</h2><p>Pilih material dan gabungkan pesanan untuk mengejar target pembelian kelompok.</p>${link('material?mode=group', 'Lihat Group Buy')}</div><img src="${asset('material.jpg')}" alt="Ilustrasi material bangunan" loading="lazy"></div>`)}
   ${section(`<div class="feature assistant-feature"><div class="feature-copy">${eyebrow('ASISTEN AI')}<h2>Butuh bantuan memilih rumah?</h2><p>Bandingkan pilihan berdasarkan kota, anggaran, atau luas bangunan.</p>${link('asisten', 'Coba Asisten AI', 'primary', 'sparkles')}</div><div class="assistant-art" aria-hidden="true">${icon('sparkles', 76)}</div></div>`)}`;
 }
 
-export function houseCatalog(listings, query, city, sort) {
+export function houseCatalog(listings, query, city, sort, maxPrice) {
   return hero('MARKETPLACE', 'Rumah Subsidi', 'Cari rumah berdasarkan lokasi dan harga atau tambahkan iklan rumah contoh.', button('sell', 'Pasang Iklan Rumah', '', 'primary', 'plus')) + section(`
     <form class="filters" id="house-filter">
       <label>Cari rumah<input name="q" placeholder="Nama perumahan atau kota" value="${e(query)}"></label>
       <label>Lokasi<span class="filter-select"><select name="city">${options(cities, 'Semua kota')}</select>${icon('chevron-down', 16)}</span></label>
       <label>Urutkan<span class="filter-select"><select name="sort"><option value="">Rekomendasi</option><option value="asc">Harga terendah</option><option value="desc">Harga tertinggi</option></select>${icon('chevron-down', 16)}</span></label>
+      <input type="hidden" name="max" value="${maxPrice || ''}">
       <button class="button primary">${icon('search', 17)} Cari Rumah</button>
     </form>
-    <div id="house-results" aria-live="polite">${houseResults(listings, query, city, sort)}</div>`);
+    <div id="house-results" aria-live="polite">${houseResults(listings, query, city, sort, maxPrice)}</div>`);
 }
 
-export function houseResults(listings, query, city, sort) {
+export function houseResults(listings, query, city, sort, maxPrice) {
   const keyword = query.trim().toLocaleLowerCase('id');
-  const matches = listings.filter(home => (!city || home.city === city) && `${home.name} ${home.city} ${home.province}`.toLocaleLowerCase('id').includes(keyword));
+  const matches = listings.filter(home => (!city || home.city === city)
+    && (!maxPrice || home.price <= maxPrice)
+    && `${home.name} ${home.city} ${home.province}`.toLocaleLowerCase('id').includes(keyword));
   if (sort) matches.sort((a, b) => sort === 'asc' ? a.price - b.price : b.price - a.price);
-  return `<p class="result-count">${matches.length} hunian • Katalog contoh</p>` + (matches.length
+  const budget = maxPrice ? `<button class="pill budget-filter" type="button" data-action="clear-budget" aria-label="Hapus batas anggaran">Hingga ${money(maxPrice)} ${icon('x', 14)}</button>` : '';
+  return `<div class="house-summary"><p class="result-count">${matches.length} hunian • Katalog contoh</p>${budget}</div>` + (matches.length
     ? `<div class="cards">${matches.map(houseCard).join('')}</div>`
-    : empty('Rumah belum ditemukan', 'Coba nama lain atau pilih semua kota.'));
+    : empty('Rumah belum ditemukan', maxPrice ? 'Coba pilih kota lain atau hapus batas anggaran.' : 'Coba nama lain atau pilih semua kota.'));
 }
 
 export function materialPage(mode, orders) {

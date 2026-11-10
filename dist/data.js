@@ -2,6 +2,9 @@ export const houses = [
   { id: 'cendana', name: 'Griya Cendana Asri', city: 'Bogor', province: 'Jawa Barat', price: 166000000, building: 30, land: 60, rooms: 2, bath: 1, photo: 'cendana.jpg', label: 'Siap Huni', description: 'Hunian satu lantai dengan dua kamar tidur, teras depan dan ruang keluarga yang menyatu dengan area makan.' },
   { id: 'savana', name: 'Taman Savana Residence', city: 'Bekasi', province: 'Jawa Barat', price: 175000000, building: 36, land: 60, rooms: 2, bath: 1, photo: 'savana.jpg', label: 'Unit Baru', description: 'Rumah tipe 36 dengan area keluarga yang lapang, dua kamar tidur, dan ruang terbuka di depan rumah.' },
   { id: 'mentari', name: 'Puri Mentari Sejahtera', city: 'Tangerang', province: 'Banten', price: 168000000, building: 30, land: 60, rooms: 2, bath: 1, photo: 'mentari.jpg', label: 'Siap Huni', description: 'Rumah kompak dengan dua kamar tidur, taman depan kecil dan tata ruang yang mudah disesuaikan.' },
+  { id: 'melati', name: 'Griya Melati Harmoni', city: 'Bogor', province: 'Jawa Barat', price: 159000000, building: 30, land: 60, rooms: 2, bath: 1, photo: 'melati.jpg', label: 'Unit Baru', description: 'Hunian dua kamar tidur dengan teras kecil dan taman depan untuk menanam tanaman pot.' },
+  { id: 'kirana', name: 'Taman Kirana Madani', city: 'Bekasi', province: 'Jawa Barat', price: 172000000, building: 36, land: 60, rooms: 2, bath: 1, photo: 'kirana.jpg', label: 'Siap Huni', description: 'Rumah satu lantai dengan teras beratap, dua kamar tidur, dan area parkir di bagian depan.' },
+  { id: 'akasia', name: 'Griya Akasia Lestari', city: 'Tangerang', province: 'Banten', price: 182000000, building: 36, land: 72, rooms: 2, bath: 1, photo: 'akasia.jpg', label: 'Unit Baru', description: 'Rumah dengan dua kamar tidur dan lahan depan yang bisa ditata sebagai taman atau area duduk.' },
 ];
 
 export const materials = [

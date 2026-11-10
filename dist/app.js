@@ -89,16 +89,27 @@ function setMenu(open) {
   $('#main-nav').classList.toggle('open', open);
 }
 
+function budgetLimit(value) {
+  const amount = Number(value);
+  return Number.isSafeInteger(amount) && amount > 0 && amount <= 1000000000000 ? amount : 0;
+}
+
+function houseRoute(filters) {
+  const params = new URLSearchParams(Object.entries(filters).filter(([, value]) => value.trim()));
+  return params.size ? 'rumah?' + params : 'rumah';
+}
+
 function render(resetScroll = false) {
   const [name, search] = (location.hash.slice(1) || 'beranda').split(/\?(.*)/s);
   const params = new URLSearchParams(search);
   const city = view.cities.includes(params.get('city')) ? params.get('city') : '';
   const sort = ['asc', 'desc'].includes(params.get('sort')) ? params.get('sort') : '';
+  const maxPrice = budgetLimit(params.get('max'));
   const kind = view.orderKinds.includes(params.get('jenis')) ? params.get('jenis') : '';
   const all = listings();
   const pages = {
     beranda: () => view.homePage(all),
-    rumah: () => view.houseCatalog(all, params.get('q') ?? '', city, sort),
+    rumah: () => view.houseCatalog(all, params.get('q') ?? '', city, sort, maxPrice),
     material: () => view.materialPage(params.get('mode'), state.orders),
     anggota: view.memberPage,
     sosialisasi: () => view.academyPage(params.get('tab'), readAcademy()),
@@ -357,6 +368,12 @@ const actions = {
   learn,
   'academy-interest': id => saveAcademy('interested', id),
   'complete-lesson': id => saveAcademy('completed', id),
+  'clear-budget': () => {
+    const form = $('#house-filter');
+    form.elements.max.value = '';
+    form.requestSubmit();
+    form.elements.q.focus({ preventScroll: true });
+  },
   'close-dialog': () => dialog.close(),
   'toggle-chat': () => showChat($('#chat').hidden),
   'close-chat': () => showChat(false),
@@ -395,11 +412,14 @@ document.addEventListener('submit', event => {
   if (form.id === 'mortgage') updateMortgage();
   if (form.id === 'signup' && requireText(form, ['name', 'company', 'city'])) saveAndShow('Keanggotaan', 'Pendaftaran anggota ASPPRIN', 'Formulir keanggotaan contoh');
   if (form.id === 'assistant-form') void findRecommendations(values);
+  if (form.id === 'hero-finder') {
+    const budget = budgetLimit(values.max);
+    go(houseRoute({ city: values.city, max: budget ? String(budget) : '' }));
+  }
   if (form.id === 'house-filter') {
-    const next = new URLSearchParams(Object.entries(values).filter(([, value]) => value.trim()));
-    const hash = '#rumah' + (next.size ? '?' + next : '');
-    history.replaceState(null, '', hash);
-    $('#house-results').innerHTML = view.houseResults(listings(), values.q, values.city, values.sort);
+    const budget = budgetLimit(values.max);
+    history.replaceState(null, '', '#' + houseRoute({ ...values, max: budget ? String(budget) : '' }));
+    $('#house-results').innerHTML = view.houseResults(listings(), values.q, values.city, values.sort, budget);
   }
   if (form.id === 'chat-form') {
     chatReply(values.message);
