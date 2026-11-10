@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#202a2c">
+  <meta name="description" content="Jelajahi rumah subsidi, belanja material bersama, dan rencanakan pembiayaan di ASPPRIN Marketplace.">
+  <link rel="icon" href="./assets/aspprin.png">
+  <link rel="preload" as="image" href="./assets/hero.jpg">
+  <link rel="stylesheet" href="./style.css">
+  <title>ASPPRIN Marketplace — Ekosistem Perumahan Rakyat</title>
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Lewati ke konten</a>
+  <div class="utility">
+    <div class="wrap utility-inner">
+      <span><i></i> Asosiasi Pengembang Perumahan Rakyat Indonesia</span>
+      <nav aria-label="Informasi organisasi">
+        <a href="#visi-misi">Visi &amp; Misi</a><a href="#organisasi">Organisasi</a><a href="#berita">News Gallery</a><a href="#kontak">Kontak</a>
+      </nav>
+    </div>
+  </div>
+  <header class="header">
+    <div class="wrap header-inner">
+      <a class="brand" href="#beranda" aria-label="ASPPRIN Marketplace, beranda">
+        <img src="./assets/aspprin.png" alt="" width="43" height="39">
+        <span><strong>ASPPRIN<span class="brand-dot">.</span></strong><small>MARKETPLACE</small></span>
+      </a>
+      <button class="icon-button mobile-menu" type="button" data-menu aria-label="Buka menu" aria-expanded="false" aria-controls="main-nav"><span data-icon="menu"></span></button>
+      <nav class="main-nav" id="main-nav" aria-label="Navigasi utama">
+        <a href="#beranda">Beranda</a><a href="#rumah">Rumah Subsidi</a><a href="#material">Material</a><a href="#anggota">Keanggotaan</a><a href="#kpr">KPR</a>
+        <div class="mobile-info"><a href="#visi-misi">Visi &amp; Misi</a><a href="#organisasi">Organisasi</a><a href="#berita">News Gallery</a><a href="#kontak">Kontak</a></div>
+      </nav>
+      <div class="header-actions">
+        <a class="orders-link" href="#pesanan"><span data-icon="bag"></span><span>Pesanan</span><span class="order-count" hidden></span></a>
+        <a class="button primary compact" href="#daftar">Daftar Anggota <span data-icon="arrow-up-right"></span></a>
+      </div>
+    </div>
+  </header>
+  <main id="main" tabindex="-1"></main>
+  <footer class="footer">
+    <div class="wrap footer-main">
+      <div><a class="brand" href="#beranda"><img src="./assets/aspprin.png" alt="" width="43" height="39"><span><strong>ASPPRIN<span class="brand-dot">.</span></strong><small>MARKETPLACE</small></span></a>
+        <p>Asosiasi Pengembang Perumahan Rakyat Indonesia</p>
+      </div>
+      <nav aria-label="Tautan marketplace"><b>Marketplace</b><a href="#rumah">Rumah Subsidi</a><a href="#material">Material &amp; Group Buy</a><a href="#kpr">Simulasi KPR</a></nav>
+      <nav aria-label="Tautan tentang ASPPRIN"><b>ASPPRIN</b><a href="#visi-misi">Visi &amp; Misi</a><a href="#organisasi">Struktur Organisasi</a><a href="#anggota">Keanggotaan</a></nav>
+      <nav aria-label="Tautan bantuan"><b>Bantuan</b><a href="#kontak">Kontak</a><a href="#pesanan">Pesanan Saya</a><a href="#asisten">Asisten AI</a></nav>
+    </div>
+    <div class="wrap footer-bottom"><span>© <span id="year"></span> ASPPRIN Marketplace</span><span>Pratinjau • Katalog dan transaksi contoh</span></div>
+  </footer>
+  <aside id="chat" class="chat" aria-label="Chatbot Asisten ASPPRIN" hidden>
+    <div class="chat-head"><span class="chat-avatar" data-icon="messages"></span><div><strong>Asisten ASPPRIN</strong><small>Panduan otomatis</small></div><button class="icon-button" type="button" data-action="close-chat" aria-label="Tutup chatbot"><span data-icon="x"></span></button></div>
+    <div id="chat-log" class="chat-log" role="log" aria-live="polite"><p class="chat-bubble">Halo! Saya bisa membantu menjelaskan fitur rumah subsidi, KPR, Group Buy, atau pendaftaran anggota. Apa yang ingin Anda ketahui?</p></div>
+    <div class="chat-prompts"><button data-prompt="Cara simulasi KPR?">Simulasi KPR</button><button data-prompt="Apa itu Group Buy?">Group Buy</button><button data-prompt="Bagaimana cara daftar anggota?">Daftar Anggota</button></div>
+    <form id="chat-form" class="chat-form"><input name="message" maxlength="280" aria-label="Pesan Anda" placeholder="Tulis pertanyaan…" required><button class="icon-button" aria-label="Kirim pesan"><span data-icon="send"></span></button></form>
+  </aside>
+  <button id="chat-launch" class="chat-launch" type="button" data-action="toggle-chat" aria-label="Asisten ASPPRIN" aria-expanded="false" aria-controls="chat"><span data-icon="messages"></span><span>Asisten ASPPRIN</span><i></i></button>
+  <dialog id="dialog" aria-labelledby="dialog-title"></dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>
